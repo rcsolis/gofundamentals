@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/rcsolis/gofundamentals/concurrency"
 	"reflect"
 )
 
@@ -734,6 +735,8 @@ func interfaces() {
 	fmt.Println("*** Interfaces")
 	// We can use the interface to declare the type and
 	// use any type that implements it  for polymorphism
+	// If use value all method implementation must be using only value receivers
+	// If use a pointer variable, methods could implement both value or pointer receivers
 	var w Writer = ConsoleWriter{}
 	n, err := w.Write([]byte("Hello Interfaces"))
 	if err != nil {
@@ -803,6 +806,46 @@ func interfaces() {
 		fmt.Println("Sleep time finish.", n)
 	}
 
+	// Everything can be casted to an empty interface
+	// We use this to cast to multiple types, we need to convert to the type first
+	fmt.Println("Empty interfaces ")
+	var objEmpty interface{}
+	objEmpty = RustDeveloper{}
+
+	goDev, cerr := objEmpty.(GoDeveloper)
+	fmt.Printf(" ConvesionVar: %v %T , %v %T \n", goDev, goDev, cerr, cerr)
+	if cerr {
+		fmt.Println("Error Conversion ")
+	}
+
+	code, err := goDev.Code([]byte("Tests"))
+	if err != nil {
+		fmt.Println("Error code", err)
+	} else {
+		fmt.Println("Code time finish.", code)
+	}
+
+	// Typed swietches
+	fmt.Println("Use switch to get the type")
+	var param interface{} = 0
+	typeOfVar(param)
+	param = true
+	typeOfVar(param)
+	param = "Hello"
+	typeOfVar(param)
+
+}
+
+func typeOfVar(param interface{}) {
+	switch param.(type) {
+	case int:
+		fmt.Println("Its an int")
+	case string:
+		fmt.Println("Its a string")
+	default:
+		fmt.Println("Its unknown")
+
+	}
 }
 
 func main() {
@@ -818,4 +861,5 @@ func main() {
 	pointers()
 	functions()
 	interfaces()
+	concurrency.Init()
 }
