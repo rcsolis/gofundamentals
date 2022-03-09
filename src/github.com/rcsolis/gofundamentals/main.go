@@ -825,7 +825,7 @@ func interfaces() {
 		fmt.Println("Code time finish.", code)
 	}
 
-	// Typed swietches
+	// Typed switches
 	fmt.Println("Use switch to get the type")
 	var param interface{} = 0
 	typeOfVar(param)
@@ -834,6 +834,12 @@ func interfaces() {
 	param = "Hello"
 	typeOfVar(param)
 
+	// Best practices
+	// Use many small vs large interfaces
+	// - Like Single method interfaces
+	// Prefer export types than interfaces in a packages
+	// Design functions and methods to receive interfaces whenever possible
+	// - Instead of receive concret types, try to receive interfaces
 }
 
 func typeOfVar(param interface{}) {
@@ -844,7 +850,6 @@ func typeOfVar(param interface{}) {
 		fmt.Println("Its a string")
 	default:
 		fmt.Println("Its unknown")
-
 	}
 }
 
