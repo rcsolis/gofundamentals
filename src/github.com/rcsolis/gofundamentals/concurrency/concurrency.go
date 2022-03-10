@@ -180,6 +180,77 @@ func channelsFunc() {
 		wgChan.Done()
 	}(ch)
 	wgChan.Wait()
+
+	// Buffered channels
+	fmt.Println("Create Buffered Channels")
+	// Create a channel with store capacity limited 10 messages
+	bufferedChannel := make(chan int, 10)
+	//declare one receiver
+	wgChan.Add(2)
+	go func(ch <-chan int) {
+		// When we could receive multiple messages, we need to loop into the channel
+		for msg := range ch {
+			fmt.Println("Receive message from buffer:", msg)
+		}
+		wgChan.Done()
+	}(bufferedChannel)
+
+	go func(ch chan<- int) {
+		for i := 10; i < 20; i++ {
+			ch <- i
+		}
+		// We need to close the channel to send a signal that there is no more messages to be posted
+		close(ch)
+		wgChan.Done()
+	}(bufferedChannel)
+	wgChan.Wait()
+
+	fmt.Println("Channels with select statement and signal channel")
+	// Using select statement
+	msgChannel := make(chan string, 5)
+	// delcares a signal only channel
+	// Using type of struct{} that is unique and requires CERO memory allocation but let us know
+	// that a message was sent
+	doneChannel := make(chan struct{})
+
+	// receiver
+	go func(msg <-chan string, done <-chan struct{}) {
+
+		for {
+			// Monitor channels
+			// By default select its a blocking statement, if we want to exectute some code
+			// and convert to a non blocking statement we need to add a default case
+			select {
+			// Receive from channel with data
+			case data := <-msg:
+				fmt.Println("-", data)
+			// REceive from signal channel
+			case <-done:
+				break
+			//default converts to nonblocking select and
+			//executes when there is no messages available in the channels
+			default:
+				fmt.Println("Waiting for messages")
+			}
+		}
+	}(msgChannel, doneChannel)
+
+	// Sends multple messages
+	go func(msg chan<- string, done chan<- struct{}) {
+		// Sends messages
+		msg <- "Top languages that I want to use"
+		msg <- "Golang"
+		msg <- "Rust"
+		msg <- "C++"
+		msg <- "Dart/Flutter"
+		msg <- "Javascript/react"
+		msg <- "NodeJs"
+		msg <- "Python"
+		// Send signal for break
+		done <- struct{}{}
+	}(msgChannel, doneChannel)
+
+	fmt.Println("This is the last statement in channels function.")
 }
 
 func Init() {
